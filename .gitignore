@@ -1,8 +1,8 @@
 # Binaries and objects generated from goodbye.c
 *.cmd
 *.ko
+*.mod.c
 *.o
 Module.symvers
-goodbye.mod.c
 modules.order
 .tmp_versions/
