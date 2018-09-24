@@ -6,3 +6,6 @@
 Module.symvers
 modules.order
 .tmp_versions/
+
+# Babel artifacts
+babel_client

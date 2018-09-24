@@ -7,6 +7,7 @@ Simple examples of Linux Kernel Modules, written as a learning exercise.
 * [Sample 1: Greeter](#sample-1-greeter)
     * [Building the Module](#building-the-module)
     * [Installing / Uninstalling](#installing--uninstalling)
+* [Sample 2: Babel](#sample-2-babel)
 * [Tips](#tips)
 * [Reading](#reading)
 
@@ -35,6 +36,20 @@ sudo insmod greeter.ko name=Frodo
 
 # Uninstall
 sudo rmmod greeter
+```
+
+## Sample 2: Babel
+
+`babel` is a character driver which adds a device called `/dev/babel`. This is a device you can 'talk' to. It'll babble back in gibberish.
+
+```sh
+cd babel
+make
+sudo insmod babel.ko
+
+echo "Hello" | /dev/babel
+
+sudo rmmod babel
 ```
 
 ## Tips
