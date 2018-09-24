@@ -42,13 +42,23 @@ sudo rmmod greeter
 
 `babel` is a character driver which adds a device called `/dev/babel`. This is a device you can 'talk' to. It'll babble back in gibberish.
 
+Install with:
+
 ```sh
 cd babel
 make
 sudo insmod babel.ko
+```
 
-echo "Hello" | /dev/babel
+Then run the test client, which'll let you chat with the `/dev/babel` device:
 
+```sh
+sudo ./babel-client
+```
+
+Uninstall with:
+
+```sh
 sudo rmmod babel
 ```
 
