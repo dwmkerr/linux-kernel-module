@@ -2,11 +2,12 @@
 //  This code is based on Derek Molloy's excellent tutorial on creating Linux
 //  Kernel Modules:
 //    http://derekmolloy.ie/writing-a-linux-kernel-module-part-2-a-character-device/
-#include <linux/init.h>
-#include <linux/module.h>
 #include <linux/device.h>
-#include <linux/kernel.h>
 #include <linux/fs.h>
+#include <linux/init.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/mutex.h>
 #include <linux/uaccess.h>
 
 //  Define the module metadata.
@@ -31,6 +32,7 @@ static short  messageSize;
 static int    numberOpens = 0;
 static struct class*  babelClass  = NULL;
 static struct device* babelDevice = NULL;
+static DEFINE_MUTEX(ioMutex);
 
 //  Prototypes for our device functions.
 static int     dev_open(struct inode *, struct file *);
@@ -53,6 +55,9 @@ static struct file_operations fops =
 static int __init mod_init(void)
 {
     pr_info("%s: module loaded at 0x%p\n", MODULE_NAME, mod_init);
+
+    //  Create a mutex to guard io operations.
+    mutex_init(&ioMutex);
 
     //  Register the device, allocating a major number.
     majorNumber = register_chrdev(0 /* i.e. allocate a major number for me */, DEVICE_NAME, &fops);
@@ -95,6 +100,7 @@ static void __exit mod_exit(void)
     class_unregister(babelClass);
     class_destroy(babelClass);
     unregister_chrdev(majorNumber, DEVICE_NAME);
+    mutex_destroy(&ioMutex);
     pr_info("%s: device unregistered\n", MODULE_NAME);
 }
 
@@ -104,9 +110,15 @@ static void __exit mod_exit(void)
  *  @param filep A pointer to a file object (defined in linux/fs.h)
  */
 static int dev_open(struct inode *inodep, struct file *filep){
-   numberOpens++;
-   pr_info("%s: device has been opened %d time(s)\n", MODULE_NAME, numberOpens);
-   return 0;
+    //  Try and lock the mutex.
+    if(!mutex_trylock(&ioMutex)) {
+        pr_alert("%s: device in use by another process", MODULE_NAME);
+        return -EBUSY;
+    }
+
+    numberOpens++;
+    pr_info("%s: device has been opened %d time(s)\n", MODULE_NAME, numberOpens);
+    return 0;
 }
 
 /** @brief This function is called whenever device is being read from user space i.e. data is
@@ -165,8 +177,9 @@ static ssize_t dev_write(struct file *filep, const char *buffer, size_t len, lof
  *  @param filep A pointer to a file object (defined in linux/fs.h)
  */
 static int dev_release(struct inode *inodep, struct file *filep){
-   pr_info("%s: device successfully closed\n", MODULE_NAME);
-   return 0;
+     mutex_unlock(&ioMutex);
+     pr_info("%s: device successfully closed\n", MODULE_NAME);
+     return 0;
 }
 
 static char babel(char input) {
