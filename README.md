@@ -62,6 +62,24 @@ Uninstall with:
 sudo rmmod babel
 ```
 
+Make the `/dev/babel` device read/write accessible without super user priviledges by adding a rule. First get the Kernal and Subsystem name:
+
+```sh
+udevadm info -a -p /sys/class/babel/babel
+
+# Will show something like:
+#   KERNEL=="babel"
+#   SUBSYSTEM=="babel"
+```
+
+Now create a low-priority rule to enable user access:
+
+```sh
+echo 'KERNEL=="babel", SUBSYSTEM=="babel", MODE="0666"' >> /etc/udev/rules.d/99-babel.rules
+```
+
+Reload the driver and it will be accessible without superuser rights.
+
 ## Tips
 
 Show loaded modules with:
@@ -95,6 +113,15 @@ insmod: ERROR: could not insert module greeter.ko: Invalid parameters
 ```
 
 Then make sure you are not trying to install the module from a shared location (such as a shared folder on a virtual machine). Copy it to the home directory and install from there instead.
+
+Trace module calls with:
+
+```sh
+sudo apt-get install strace
+sudo strace ./babel/babel_client
+```
+
+`strace` will show low-level system calls in realtime as the program makes them.
 
 ## Reading
 
