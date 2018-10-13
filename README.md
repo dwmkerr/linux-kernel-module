@@ -1,5 +1,7 @@
 # linux-kernel-module
 
+[![GuardRails badge](https://badges.production.guardrails.io/dwmkerr/linux-kernel-module.svg)](https://www.guardrails.io)
+
 Simple examples of Linux Kernel Modules, written as a learning exercise.
 
 <!-- vim-markdown-toc GFM -->
