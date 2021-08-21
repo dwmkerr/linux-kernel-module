@@ -165,7 +165,7 @@ static ssize_t dev_read(struct file *filep, char *buffer, size_t len, loff_t *of
  */
 static ssize_t dev_write(struct file *filep, const char *buffer, size_t len, loff_t *offset){
     //  Write the string into our message memory. Record the length.
-    memcpy(message, buffer, len);
+    copy_from_user(message, buffer, len);
     messageSize = len;
     pr_info("%s: received %zu characters from the user\n", MODULE_NAME, len);
     return len;
