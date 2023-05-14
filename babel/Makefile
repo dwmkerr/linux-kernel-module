@@ -10,6 +10,7 @@ default:
 
 clean:
 	$(MAKE) -C $(KBUILD) M=$(PWD) clean
+	rm -rf babel_client
 
 menuconfig:
 	$(MAKE) -C $(KBUILD) M=$(PWD) menuconfig
