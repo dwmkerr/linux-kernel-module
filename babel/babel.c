@@ -168,7 +168,16 @@ static ssize_t dev_write(struct file *filep, const char *buffer, size_t len, lof
     long copied_from_user;
     copied_from_user = copy_from_user(message, buffer, len);
     messageSize = len;
-    pr_info("%s: received %zu characters from the user\n", MODULE_NAME, len);
+    if(copied_from_user != 0 )
+    {
+        printk(KERN_WARNING "copy_from_user failed ret_val: %ld\n",copied_from_user );
+    }
+    else
+    {
+        pr_info("%s: copy_from_user ret_val : %ld\n", MODULE_NAME, copied_from_user);
+        pr_info("%s: received %zu characters from the user\n", MODULE_NAME, len);
+    }
+
     return len;
 }
 
